@@ -4,7 +4,7 @@ This repository contains step-by-step notes, commands, and examples from my Hanc
 The aim is to provide homelab enthusiasts, virtualization admins, and storage engineers with a clear reference for creating, deleting, formatting, and attaching NVMe namespaces in a Linux environment.
 
 📹 Video Walkthrough
-Watch the full guide here: YouTube Link
+Watch the full guide here: [YouTube Link](https://youtu.be/SVsMpnv3JPc?si=HZyjPtjykt_KRUVI)
 
 🛠 Hardware Used
 MINISFORUM MS-A2 Mini PC
