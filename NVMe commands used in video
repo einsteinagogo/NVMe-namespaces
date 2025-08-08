@@ -1,0 +1,81 @@
+📝 NVMe Namespace Configuration Cheat Sheet
+This quick reference covers creating, attaching, formatting, and deleting NVMe namespaces on a U.2 or M.2 NVMe SSD using nvme-cli.
+Commands are based on the Samsung U.2 PMA9A3 in a MINISFORUM MS-A2 running Ubuntu.
+
+0️⃣ Install nvme-cli
+bash
+Copy
+Edit
+sudo apt-get update
+sudo apt-get install nvme-cli
+1️⃣ Check Devices
+bash
+Copy
+Edit
+nvme list
+2️⃣ Check Existing NVMe Namespaces
+bash
+Copy
+Edit
+sudo nvme id-ctrl /dev/nvme0 | grep "nn"
+3️⃣ Inspect Device Details
+bash
+Copy
+Edit
+sudo nvme id-ctrl /dev/nvme0
+4️⃣ Check Capacity Variables
+bash
+Copy
+Edit
+sudo nvme id-ctrl /dev/nvme0 | grep vmcap
+5️⃣ Calculate Block Counts (512-byte, aligned to 256)
+bash
+Copy
+Edit
+ns1_bytes=800000000000
+ns2_bytes=1000000000000
+ns3_bytes=2000000000000
+
+ns1_blocks=$((ns1_bytes / 512))
+ns1_blocks_aligned=$((ns1_blocks - (ns1_blocks % 256)))
+
+ns2_blocks=$((ns2_bytes / 512))
+ns2_blocks_aligned=$((ns2_blocks - (ns2_blocks % 256)))
+
+ns3_blocks=$((ns3_bytes / 512))
+ns3_blocks_aligned=$((ns3_blocks - (ns3_blocks % 256)))
+6️⃣ Create NVMe Namespaces
+bash
+Copy
+Edit
+sudo nvme create-ns /dev/nvme0 -s $ns1_blocks_aligned -c $ns1_blocks_aligned --flbas=0
+sudo nvme create-ns /dev/nvme0 -s $ns2_blocks_aligned -c $ns2_blocks_aligned --flbas=0
+sudo nvme create-ns /dev/nvme0 -s $ns3_blocks_aligned -c $ns3_blocks_aligned --flbas=0
+7️⃣ Find Controller ID
+bash
+Copy
+Edit
+sudo nvme id-ctrl /dev/nvme0 | grep "cntlid"
+8️⃣ Attach Namespaces to Controller
+bash
+Copy
+Edit
+sudo nvme attach-ns /dev/nvme0 -n 1 -c 0x6
+sudo nvme attach-ns /dev/nvme0 -n 2 -c 0x6
+sudo nvme attach-ns /dev/nvme0 -n 3 -c 0x6
+9️⃣ Format Namespaces (512B Block Size)
+bash
+Copy
+Edit
+sudo nvme format /dev/nvme0n1 --lbaf=0
+sudo nvme format /dev/nvme0n2 --lbaf=0
+sudo nvme format /dev/nvme0n3 --lbaf=0
+🔄 Remove All Namespaces
+bash
+Copy
+Edit
+for ns in $(nvme list-ns /dev/nvme0); do
+  sudo nvme detach-ns /dev/nvme0 -n $ns -c 0x6
+  sudo nvme delete-ns /dev/nvme0 -n $ns
+done
+⚠ Warning: These commands will erase all data on the device. Use in a lab environment or after confirming backups.
